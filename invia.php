@@ -85,14 +85,15 @@ if ($uid < 1) {
     if ($uid < 1) esci('ERRORE motivo=utente_freescout_non_trovato', 1);
 }
 
-$html = '';
-foreach (preg_split('/\R{2,}/u', $testo) as $par) {
-    $par = trim($par);
-    if ($par === '') continue;
-    $e = nl2br(htmlspecialchars($par, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
-    $e = preg_replace('#(https://[^\s<]+)#', '<a href="$1">$1</a>', $e);   // collegamenti cliccabili
-    $html .= '<p>' . $e . '</p>';
+// Ogni riga del testo diventa un blocco separato da una riga vuota (leggibile anche su telefono); i collegamenti sono cliccabili.
+$righe = [];
+foreach (preg_split('/\R/u', $testo) as $riga) {
+    $riga = trim($riga);
+    if ($riga === '') continue;
+    $e = htmlspecialchars($riga, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $righe[] = preg_replace('#(https://[^\s<]+)#', '<a href="$1">$1</a>', $e);
 }
+$html = '<p>' . implode('<br><br>', $righe) . '</p>';
 
 $corpo = [
     'type' => 'email',
