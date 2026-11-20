@@ -1,5 +1,5 @@
 Spettabile {{azienda}}
-evito presentazioni e vado dritto al punto: il vostro sito è davvero datato per una azienda qualificata come la vostra, quindi vi ho preparato una demo di come può diventare:
+evito presentazioni e vado dritto al punto: il vostro sito non è adeguato per rappresentare un'azienda qualificata come la vostra, quindi vi ho preparato una demo di come può diventare:
 {{link_demo}}
 Prezzo: 290,00euro, online in 2gg lavorativi, incluso il caricamento sul vostro hosting web.
 Nessuna "sorpresa", nessun "costo aggiuntivo", nessun "abbonamento".
