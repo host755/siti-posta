@@ -1,0 +1,7 @@
+ID: prova01
+Inizio: 2026-11-20 15:26:46
+-----
+OK id=232 casella=1
+-----
+Uscita: 0
+Fine: 2026-11-20 15:26:46
