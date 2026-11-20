@@ -22,8 +22,22 @@ $job = json_decode((string) file_get_contents($file), true);
 if (!is_array($job)) esci('ERRORE motivo=json_non_valido', 1);
 
 $dest = strtolower(trim((string) ($job['destinatario'] ?? '')));
-$ogg = trim((string) ($job['oggetto'] ?? ''));
-$testo = trim((string) ($job['testo'] ?? ''));
+if (isset($job['azienda']) || isset($job['link_demo'])) {
+    // Modo normale: oggetto e testo vengono SEMPRE dal modello fisso (modello/oggetto.txt e modello/corpo.txt); il lavoro porta solo i due segnaposto.
+    $azienda = trim((string) ($job['azienda'] ?? ''));
+    $link = trim((string) ($job['link_demo'] ?? ''));
+    if ($azienda === '' || mb_strlen($azienda) > 120 || preg_match('/[\r\n]/', $azienda)) esci('ERRORE motivo=azienda_non_valida', 1);
+    if (!preg_match('#^https://cloud755\.com/[a-z0-9_-]+/?$#', $link)) esci('ERRORE motivo=link_demo_non_valido', 1);
+    $mOgg = trim((string) @file_get_contents(__DIR__ . '/modello/oggetto.txt'));
+    $mTesto = trim((string) @file_get_contents(__DIR__ . '/modello/corpo.txt'));
+    if ($mOgg === '' || $mTesto === '') esci('ERRORE motivo=modello_mancante', 1);
+    $ogg = str_replace(['{{azienda}}', '{{link_demo}}'], [$azienda, $link], $mOgg);
+    $testo = str_replace(['{{azienda}}', '{{link_demo}}'], [$azienda, $link], $mTesto);
+} else {
+    // Modo prova: oggetto e testo scritti nel lavoro.
+    $ogg = trim((string) ($job['oggetto'] ?? ''));
+    $testo = trim((string) ($job['testo'] ?? ''));
+}
 if (!filter_var($dest, FILTER_VALIDATE_EMAIL)) esci('ERRORE motivo=destinatario_non_valido', 1);
 if ($ogg === '' || $testo === '') esci('ERRORE motivo=oggetto_o_testo_vuoto', 1);
 if (mb_strlen($ogg) > 200 || mb_strlen($testo) > 8000) esci('ERRORE motivo=testo_troppo_lungo', 1);
@@ -74,7 +88,10 @@ if ($uid < 1) {
 $html = '';
 foreach (preg_split('/\R{2,}/u', $testo) as $par) {
     $par = trim($par);
-    if ($par !== '') $html .= '<p>' . nl2br(htmlspecialchars($par, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) . '</p>';
+    if ($par === '') continue;
+    $e = nl2br(htmlspecialchars($par, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
+    $e = preg_replace('#(https://[^\s<]+)#', '<a href="$1">$1</a>', $e);   // collegamenti cliccabili
+    $html .= '<p>' . $e . '</p>';
 }
 
 $corpo = [
